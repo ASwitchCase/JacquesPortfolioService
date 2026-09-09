@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/JacquesPortfolioService.Api/JacquesPortfolioService.Api.csproj" />
+    <Project Path="src/JacquesPortfolioService.Application/JacquesPortfolioService.Application.csproj" />
+    <Project Path="src/JacquesPortfolioService.Domain/JacquesPortfolioService.Domain.csproj" />
+    <Project Path="src/JacquesPortfolioService.Infrastructure/JacquesPortfolioService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/JacquesPortfolioService.IntegrationTests/JacquesPortfolioService.IntegrationTests.csproj" />
+    <Project Path="tests/JacquesPortfolioService.UnitTests/JacquesPortfolioService.UnitTests.csproj" />
+  </Folder>
+</Solution>

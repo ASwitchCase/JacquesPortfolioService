@@ -1,0 +1,1 @@
+public record CreatedSkill(String name) : IDomainEvent;
