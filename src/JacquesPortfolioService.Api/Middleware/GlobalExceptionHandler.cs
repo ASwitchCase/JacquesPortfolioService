@@ -1,70 +1,41 @@
-
-// filepath: GlobalExceptionHandler.cs
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 public sealed class GlobalExceptionHandler(
-    ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
+    ILogger<GlobalExceptionHandler> logger,
+    IProblemDetailsService problemDetailsService) : IExceptionHandler
 {
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
         CancellationToken ct)
     {
-        (int statusCode, string title, IReadOnlyDictionary<string, string[]>? errors)
-            result = exception switch
-            {
-
-                UnauthorizedAccessException =>
-                    (
-                        StatusCodes.Status403Forbidden,
-                        "Forbidden.",
-                        null
-                    ),
-                _ =>
-                    (
-                        StatusCodes.Status500InternalServerError,
-                        "An unexpected error occurred.",
-                        null
-                    )
-            };
-
-        var (statusCode, title, errors) = result;
-
-        if (statusCode == StatusCodes.Status500InternalServerError)
+        var (statusCode, title, detail) = exception switch
         {
-            logger.LogError(
-                exception,
-                "Unhandled exception on {Path}",
-                httpContext.Request.Path);
-        }
-        else
-        {
-            logger.LogWarning(
-                exception,
-                "Handled exception on {Path}: {Message}",
-                httpContext.Request.Path,
-                exception.Message);
-        }
+            KeyNotFoundException =>
+                (404, "Resource not found.", exception.Message),
 
-        var problemDetails = new ProblemDetails
-        {
-            Status = statusCode,
-            Title = title,
-            Type = $"https://httpstatuses.io/{statusCode}",
-            Instance = httpContext.Request.Path,
-            Extensions =
-            {
-                ["traceId"] = httpContext.TraceIdentifier
-            }
+            UnauthorizedAccessException =>
+                (403, "Forbidden.", exception.Message),
+
+            _ =>
+                (500, "An unexpected error occurred.", null)
         };
-
-        if (errors is not null)
-            problemDetails.Extensions["errors"] = errors;
 
         httpContext.Response.StatusCode = statusCode;
 
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, ct);
+        await problemDetailsService.WriteAsync(new ProblemDetailsContext
+        {
+            HttpContext = httpContext,
+            Exception = exception,
+            ProblemDetails = new ProblemDetails
+            {
+                Status = statusCode,
+                Title = title,
+                Detail = detail,
+                Instance = httpContext.Request.Path
+            }
+        });
 
         return true;
     }
