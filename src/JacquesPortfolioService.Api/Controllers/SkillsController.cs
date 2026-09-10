@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 [Route("api/skills")]
 public class SkillsController(ISender sender) : ControllerBase
 {
-    [HttpGet("id:guid")]
+    [HttpGet("{id:guid}")]
     [ProducesResponseType<SkillDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<SkillDto>> GetById(Guid id, CancellationToken ct)

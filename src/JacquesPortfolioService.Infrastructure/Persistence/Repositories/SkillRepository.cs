@@ -11,8 +11,8 @@ public class SkillRepository(ApplicationDbContext db) : ISkillRepository
         return await db.Skills.FirstOrDefaultAsync(s => s.Id == id);
     }
 
-    public Task<bool> SaveChangesAsync(CancellationToken ct)
+    public async Task<bool> SaveChangesAsync(CancellationToken ct)
     {
-        throw new NotImplementedException();
+        return await db.SaveChangesAsync(ct) > 0;
     }
 }

@@ -5,7 +5,8 @@ public class SkillConfiguration : IEntityTypeConfiguration<Skill>
 {
     public void Configure(EntityTypeBuilder<Skill> builder)
     {
-        builder.ToTable("skills");
+        builder.ToContainer("skills");
         builder.HasKey(skill => skill.Id);
+        builder.HasPartitionKey(skill => skill.Id);
     }
 }

@@ -6,9 +6,13 @@ public static class DependancyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration config)
     {
+        var cosmosConnectionString = config["CosmosDb:ConnectionString"]
+            ?? throw new InvalidOperationException("CosmosDb:ConnectionString is not configured.");
+        var cosmosDatabaseName = config["CosmosDb:DatabaseName"]
+            ?? throw new InvalidOperationException("CosmosDb:DatabaseName is not configured.");
+
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(config.GetConnectionString("Default"),
-            npgsql => npgsql.EnableRetryOnFailure(3))
+            options.UseCosmos(cosmosConnectionString, cosmosDatabaseName)
         );
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<ISkillRepository, SkillRepository>();
