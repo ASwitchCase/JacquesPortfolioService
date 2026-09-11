@@ -9,6 +9,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Skill> Skills => Set<Skill>();
     public DbSet<PortfolioProject> PortfolioProjects => Set<PortfolioProject>();
     public DbSet<WorkExperience> WorkExperiences => Set<WorkExperience>();
+    public DbSet<Education> Educations => Set<Education>();
+    public DbSet<Contact> Contacts => Set<Contact>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

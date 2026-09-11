@@ -19,6 +19,8 @@ public static class DependancyInjection
         services.AddScoped<ISkillRepository, SkillRepository>();
         services.AddScoped<IPortfolioProjectRepository, PortfolioProjectRepository>();
         services.AddScoped<IWorkExperienceRepository, WorkExperienceRepository>();
+        services.AddScoped<IEducationRepository, EducationRepository>();
+        services.AddScoped<IContactRepository, ContactRepository>();
 
         services.Configure<JwtSettings>(config.GetSection("Jwt"));
 
