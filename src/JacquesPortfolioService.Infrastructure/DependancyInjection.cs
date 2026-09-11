@@ -17,6 +17,7 @@ public static class DependancyInjection
         );
         services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<ISkillRepository, SkillRepository>();
+        services.AddScoped<IPortfolioProjectRepository, PortfolioProjectRepository>();
 
         services.Configure<JwtSettings>(config.GetSection("Jwt"));
 

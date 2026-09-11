@@ -7,6 +7,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
 {
     public DbSet<Skill> Skills => Set<Skill>();
+    public DbSet<PortfolioProject> PortfolioProjects => Set<PortfolioProject>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
