@@ -12,9 +12,16 @@ public class AuthController(ISender sender) : ControllerBase
     public async Task<ActionResult<RegisterResponseDto>> Register(RegisterCommand command, CancellationToken ct)
     {
         var result = await sender.Send(command, ct);
-        return result is null
-            ? Conflict("A user with this email already exists.")
-            : StatusCode(StatusCodes.Status201Created, result);
+        if (!result.Succeeded)
+        {
+            return result.EmailAlreadyExists
+                ? Conflict(new { errors = result.Errors })
+                : BadRequest(new { errors = result.Errors });
+        }
+
+        return StatusCode(
+            StatusCodes.Status201Created,
+            new RegisterResponseDto(result.UserId!.Value, result.Email!));
     }
 
     [HttpPost("login")]

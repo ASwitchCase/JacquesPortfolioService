@@ -43,6 +43,13 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await db.Database.MigrateAsync();
+
+    var connection = db.Database.GetDbConnection();
+    app.Logger.LogInformation(
+        "Application database: provider={Provider}, server={Server}, database={Database}",
+        connection.GetType().Name,
+        connection.DataSource,
+        connection.Database);
 }
 
 // Configure the HTTP request pipeline.

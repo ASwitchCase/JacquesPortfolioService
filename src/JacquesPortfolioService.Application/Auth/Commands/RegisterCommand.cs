@@ -1,14 +1,13 @@
 using MediatR;
 
-public record RegisterCommand(string Email, string Password, string DisplayName) : IRequest<RegisterResponseDto?>;
+public record RegisterCommand(string Email, string Password, string DisplayName) : IRequest<RegisterResult>;
 
 public record RegisterResponseDto(Guid Id, string Email);
 
-public class RegisterCommandHandler(IAuthService authService) : IRequestHandler<RegisterCommand, RegisterResponseDto?>
+public class RegisterCommandHandler(IAuthService authService) : IRequestHandler<RegisterCommand, RegisterResult>
 {
-    public async Task<RegisterResponseDto?> Handle(RegisterCommand request, CancellationToken ct)
+    public Task<RegisterResult> Handle(RegisterCommand request, CancellationToken ct)
     {
-        var result = await authService.RegisterAsync(request.Email, request.Password, request.DisplayName, ct);
-        return result.Succeeded ? new RegisterResponseDto(result.UserId!.Value, result.Email!) : null;
+        return authService.RegisterAsync(request.Email, request.Password, request.DisplayName, ct);
     }
 }

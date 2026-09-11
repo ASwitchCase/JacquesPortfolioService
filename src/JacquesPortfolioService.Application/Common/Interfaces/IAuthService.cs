@@ -1,4 +1,9 @@
-public record RegisterResult(bool Succeeded, Guid? UserId, string? Email, IReadOnlyList<string> Errors);
+public record RegisterResult(
+    bool Succeeded,
+    Guid? UserId,
+    string? Email,
+    IReadOnlyList<string> Errors,
+    bool EmailAlreadyExists = false);
 
 // Implements a narrow interface Application defines, the same pattern as ITokenGenerator —
 // keeps UserManager/RoleManager (Identity-specific) entirely out of Application.

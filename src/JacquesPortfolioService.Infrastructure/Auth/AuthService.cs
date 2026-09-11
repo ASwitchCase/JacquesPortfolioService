@@ -25,7 +25,12 @@ public class AuthService(
     {
         var existing = await userManager.FindByEmailAsync(email);
         if (existing is not null)
-            return new RegisterResult(false, null, null, ["A user with this email already exists."]);
+            return new RegisterResult(
+                false,
+                null,
+                null,
+                ["A user with this email already exists."],
+                EmailAlreadyExists: true);
 
         var user = new ApplicationUser
         {
