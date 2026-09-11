@@ -21,4 +21,13 @@ public class Skill
         return skill;
     }
     public void ClearDomaminEvents() => _domainEvents.Clear();
+
+    public void Rename(String newName)
+    {
+        if (newName.Length == 0)
+        {
+            throw new Exception("Please provide a valid name for a skill.");
+        }
+        Name = newName;
+    }
 }

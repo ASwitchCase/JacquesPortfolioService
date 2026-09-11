@@ -12,6 +12,9 @@ public sealed class GlobalExceptionHandler(
     {
         var (statusCode, title, detail) = exception switch
         {
+            FluentValidation.ValidationException validationException =>
+                (400, "Validation failed.", string.Join(" ", validationException.Errors.Select(e => e.ErrorMessage))),
+
             KeyNotFoundException =>
                 (404, "Resource not found.", exception.Message),
 

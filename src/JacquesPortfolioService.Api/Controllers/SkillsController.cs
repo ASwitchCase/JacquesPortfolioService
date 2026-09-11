@@ -1,8 +1,10 @@
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/skills")]
+[Authorize]
 public class SkillsController(ISender sender) : ControllerBase
 {
     [HttpGet("{id:guid}")]
@@ -19,6 +21,32 @@ public class SkillsController(ISender sender) : ControllerBase
     {
         var result = await sender.Send(command, ct);
         return CreatedAtAction(nameof(GetById),new {id = result.Id},result);
+    }
+
+    [HttpGet]
+    [ProducesResponseType<List<SkillDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<List<SkillDto>>> List(CancellationToken ct)
+    {
+        var result = await sender.Send(new GetSkillsListQuery(), ct);
+        return Ok(result);
+    }
+
+    [HttpPut("{id:guid}")]
+    [ProducesResponseType<SkillDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<SkillDto>> Update(Guid id, UpdateSkillCommand command, CancellationToken ct)
+    {
+        var result = await sender.Send(command with { skillId = id }, ct);
+        return Ok(result);
+    }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
+    {
+        await sender.Send(new DeleteSkillCommand(id), ct);
+        return NoContent();
     }
 
 }
