@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 public class AuthService(
@@ -7,7 +8,7 @@ public class AuthService(
     ITokenGenerator tokenGenerator,
     IOptions<JwtSettings> jwtOptions) : IAuthService
 {
-    private const string DefaultRole = "User";
+    private const string BootstrapAdminRole = "Admin";
 
     public async Task<AuthResponseDto?> LoginAsync(string email, string password, CancellationToken ct)
     {
@@ -23,6 +24,14 @@ public class AuthService(
 
     public async Task<RegisterResult> RegisterAsync(string email, string password, string displayName, CancellationToken ct)
     {
+        if (await userManager.Users.AnyAsync(ct))
+            return new RegisterResult(
+                false,
+                null,
+                null,
+                ["Registration is closed. Contact the administrator."],
+                RegistrationClosed: true);
+
         var existing = await userManager.FindByEmailAsync(email);
         if (existing is not null)
             return new RegisterResult(
@@ -44,9 +53,9 @@ public class AuthService(
         if (!createResult.Succeeded)
             return new RegisterResult(false, null, null, createResult.Errors.Select(e => e.Description).ToList());
 
-        if (!await roleManager.RoleExistsAsync(DefaultRole))
-            await roleManager.CreateAsync(new IdentityRole<Guid>(DefaultRole));
-        await userManager.AddToRoleAsync(user, DefaultRole);
+        if (!await roleManager.RoleExistsAsync(BootstrapAdminRole))
+            await roleManager.CreateAsync(new IdentityRole<Guid>(BootstrapAdminRole));
+        await userManager.AddToRoleAsync(user, BootstrapAdminRole);
 
         return new RegisterResult(true, user.Id, user.Email, []);
     }

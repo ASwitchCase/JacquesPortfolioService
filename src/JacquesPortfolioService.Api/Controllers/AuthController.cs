@@ -9,11 +9,15 @@ public class AuthController(ISender sender) : ControllerBase
     [HttpPost("register")]
     [ProducesResponseType<RegisterResponseDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<RegisterResponseDto>> Register(RegisterCommand command, CancellationToken ct)
     {
         var result = await sender.Send(command, ct);
         if (!result.Succeeded)
         {
+            if (result.RegistrationClosed)
+                return StatusCode(StatusCodes.Status403Forbidden, new { errors = result.Errors });
+
             return result.EmailAlreadyExists
                 ? Conflict(new { errors = result.Errors })
                 : BadRequest(new { errors = result.Errors });

@@ -3,7 +3,8 @@ public record RegisterResult(
     Guid? UserId,
     string? Email,
     IReadOnlyList<string> Errors,
-    bool EmailAlreadyExists = false);
+    bool EmailAlreadyExists = false,
+    bool RegistrationClosed = false);
 
 // Implements a narrow interface Application defines, the same pattern as ITokenGenerator —
 // keeps UserManager/RoleManager (Identity-specific) entirely out of Application.
