@@ -31,7 +31,7 @@ Authentication uses JWT bearer tokens. Register a user, log in with that user's 
 Authorization: Bearer <access-token>
 ```
 
-Only `GET /api/auth/me` currently requires authentication. The skill endpoints are currently public because their controller actions are not marked with `[Authorize]`.
+`GET /api/auth/me`, the skill endpoints, the portfolio project endpoints, and the work experience endpoints all require authentication.
 
 ## Endpoints
 
@@ -121,11 +121,12 @@ Successful response: `200 OK`
 
 ### Create a skill
 
-Creates a skill. This endpoint is currently public.
+Creates a skill.
 
 ```http
 POST /api/skills
 Content-Type: application/json
+Authorization: Bearer <access-token>
 ```
 
 Request body:
@@ -166,6 +167,102 @@ curl https://localhost:7148/api/skills/22222222-2222-2222-2222-222222222222
 
 Successful response: `200 OK` with the skill representation shown above. If the skill does not exist, the response is `404 Not Found`.
 
+### Create a work experience
+
+Creates a work experience entry.
+
+```http
+POST /api/workexperiences
+Content-Type: application/json
+Authorization: Bearer <access-token>
+```
+
+Request body:
+
+```json
+{
+  "company": "Acme Corp",
+  "title": "Software Engineer",
+  "startDate": "2022-01-01T00:00:00Z",
+  "endDate": null,
+  "description": "Built and maintained backend services.",
+  "location": "Remote"
+}
+```
+
+Requirements:
+
+- `company` is required.
+- `title` is required.
+- `startDate` is required.
+- `endDate` is optional; omit or set to `null` for a current role.
+- `description` is required.
+- `location` is required.
+
+Successful response: `201 Created`
+
+```json
+{
+  "id": "33333333-3333-3333-3333-333333333333",
+  "company": "Acme Corp",
+  "title": "Software Engineer",
+  "startDate": "2022-01-01T00:00:00Z",
+  "endDate": null,
+  "description": "Built and maintained backend services.",
+  "location": "Remote",
+  "createdAt": "2026-09-11T17:32:00Z"
+}
+```
+
+The `Location` header points to the new work experience's `GET /api/workexperiences/{id}` URL.
+
+### Get a work experience
+
+Returns a work experience entry by its GUID.
+
+```http
+GET /api/workexperiences/{id}
+Authorization: Bearer <access-token>
+```
+
+Successful response: `200 OK` with the representation shown above. If the work experience does not exist, the response is `404 Not Found`.
+
+### List work experiences
+
+Returns all work experience entries.
+
+```http
+GET /api/workexperiences
+Authorization: Bearer <access-token>
+```
+
+Successful response: `200 OK` with a JSON array of work experience representations.
+
+### Update a work experience
+
+Replaces a work experience entry's details.
+
+```http
+PUT /api/workexperiences/{id}
+Content-Type: application/json
+Authorization: Bearer <access-token>
+```
+
+Request body: same shape as create. The `id` in the URL is authoritative; any id in the body is ignored.
+
+Successful response: `200 OK` with the updated representation. If the work experience does not exist, the response is `404 Not Found`.
+
+### Delete a work experience
+
+Deletes a work experience entry.
+
+```http
+DELETE /api/workexperiences/{id}
+Authorization: Bearer <access-token>
+```
+
+Successful response: `204 No Content`. If the work experience does not exist, the response is `404 Not Found`.
+
 ## End-to-end example
 
 ```bash
@@ -182,7 +279,13 @@ curl -k https://localhost:7148/api/auth/me \
 
 curl -k -X POST https://localhost:7148/api/skills \
   -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer <access-token>' \
   -d '{"skillName":"C#"}'
+
+curl -k -X POST https://localhost:7148/api/workexperiences \
+  -H 'Content-Type: application/json' \
+  -H 'Authorization: Bearer <access-token>' \
+  -d '{"company":"Acme Corp","title":"Software Engineer","startDate":"2022-01-01T00:00:00Z","endDate":null,"description":"Built and maintained backend services.","location":"Remote"}'
 ```
 
 The `-k` option allows curl to use the local development HTTPS certificate. Do not use it for production requests.

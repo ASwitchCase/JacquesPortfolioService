@@ -1,6 +1,157 @@
 @JacquesPortfolioService.Api_HostAddress = http://localhost:5169
 
-GET {{JacquesPortfolioService.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### Register a test user
+# @name register
+POST {{JacquesPortfolioService.Api_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "email": "test-{{$guid}}@example.com",
+  "password": "TestPass123!",
+  "displayName": "Test User"
+}
+
+###
+
+### Login (reuses the email just registered above)
+# @name login
+POST {{JacquesPortfolioService.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "{{register.request.body.$.email}}",
+  "password": "TestPass123!"
+}
+
+###
+
+@authToken = {{login.response.body.$.accessToken}}
+
+### Who am I
+GET {{JacquesPortfolioService.Api_HostAddress}}/api/auth/me
+Authorization: Bearer {{authToken}}
+
+###
+### -------- Skills --------
+###
+
+### Create a skill
+# @name createSkill
+POST {{JacquesPortfolioService.Api_HostAddress}}/api/skills
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "skillName": "C#"
+}
+
+###
+
+@skillId = {{createSkill.response.body.$.id}}
+
+### List skills
+GET {{JacquesPortfolioService.Api_HostAddress}}/api/skills
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get skill by id
+GET {{JacquesPortfolioService.Api_HostAddress}}/api/skills/{{skillId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### Update skill
+PUT {{JacquesPortfolioService.Api_HostAddress}}/api/skills/{{skillId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "skillName": "C# (Advanced)"
+}
+
+###
+
+### Delete skill
+DELETE {{JacquesPortfolioService.Api_HostAddress}}/api/skills/{{skillId}}
+Authorization: Bearer {{authToken}}
+
+###
+### -------- Portfolio Projects --------
+###
+
+### Create a portfolio project
+# @name createProject
+POST {{JacquesPortfolioService.Api_HostAddress}}/api/portfolioprojects
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "My Project",
+  "spec": "A cool spec",
+  "detail": "Long detail text",
+  "skillIds": ["{{skillId}}"]
+}
+
+###
+
+@projectId = {{createProject.response.body.$.id}}
+
+### List portfolio projects
+GET {{JacquesPortfolioService.Api_HostAddress}}/api/portfolioprojects
+Authorization: Bearer {{authToken}}
+
+###
+
+### Get portfolio project by id
+GET {{JacquesPortfolioService.Api_HostAddress}}/api/portfolioprojects/{{projectId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### Update portfolio project
+PUT {{JacquesPortfolioService.Api_HostAddress}}/api/portfolioprojects/{{projectId}}
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "Updated Project",
+  "spec": "Updated spec",
+  "detail": "Updated detail",
+  "skillIds": []
+}
+
+###
+
+### Delete portfolio project
+DELETE {{JacquesPortfolioService.Api_HostAddress}}/api/portfolioprojects/{{projectId}}
+Authorization: Bearer {{authToken}}
+
+###
+
+### -- Error cases --
+
+### Missing title -> 400
+POST {{JacquesPortfolioService.Api_HostAddress}}/api/portfolioprojects
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "title": "",
+  "spec": "X",
+  "detail": "X",
+  "skillIds": []
+}
+
+###
+
+### No token -> 401
+GET {{JacquesPortfolioService.Api_HostAddress}}/api/portfolioprojects
+
+###
+
+### Unknown id -> 404
+GET {{JacquesPortfolioService.Api_HostAddress}}/api/portfolioprojects/00000000-0000-0000-0000-000000000000
+Authorization: Bearer {{authToken}}
 
 ###
